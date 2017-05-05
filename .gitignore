@@ -1,0 +1,6 @@
+cli/bin/
+gui/bin/
+lib/build/
+releases/
+test/bin/
+test/TEST-*.xml

@@ -1,0 +1,17 @@
+{
+  "name": "Task",
+  "version": "0.0.1",
+  "outputDir": "build",
+  "references": [
+    "System"
+  ],
+  "modules": [
+    {
+      "name": "Task",
+      "version": "0.0.1",
+      "sourcePath": [
+        "."
+      ]
+    }
+  ]
+}
