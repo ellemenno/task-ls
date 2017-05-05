@@ -3,11 +3,12 @@ package pixeldroid.task
     import system.Debug;
 
     import pixeldroid.task.Task;
-    import pixeldroid.task.TaskStart;
-    import pixeldroid.task.TaskProgress;
-    import pixeldroid.task.TaskFault;
     import pixeldroid.task.TaskComplete;
+    import pixeldroid.task.TaskFault;
+    import pixeldroid.task.TaskProgress;
+    import pixeldroid.task.TaskStart;
     import pixeldroid.task.TaskState;
+    import pixeldroid.task.TaskStateLabel;
 
 
     public class SingleTask implements Task
@@ -94,6 +95,11 @@ package pixeldroid.task
             setCurrentState(TaskState.RUNNING);
             _onTaskStart(this);
             performTask();
+        }
+
+        public function toString():String
+        {
+            return label +' (' +TaskStateLabel.toLabel(_currentState) +')';
         }
 
 

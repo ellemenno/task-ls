@@ -19,6 +19,7 @@ package
             it.should('be enabled by default', initialize_enabled);
             it.should('not start if disabled', not_start_if_disabled);
             it.should('provide a default label', have_default_label);
+            it.should('provide a toString method', have_toString);
             it.should('announce when started', announce_start);
             it.should('announce when completed', announce_completed);
             it.should('announce when a fault occurs', announce_fault);
@@ -46,6 +47,13 @@ package
 
             task.label = label;
             it.expects(task.label).toEqual(label);
+        }
+
+        private static function have_toString():void
+        {
+            var task:Task = new TestTask();
+            task.label = 'test';
+            it.expects(task.toString()).toEqual('test (unstarted)');
         }
 
         private static function not_start_if_disabled():void
