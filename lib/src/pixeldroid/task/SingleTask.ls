@@ -22,6 +22,7 @@ package pixeldroid.task
         private var _onTaskFault:TaskFault;
         private var _onTaskComplete:TaskComplete;
 
+
         public function get currentState():TaskState { return _currentState; }
 
         public function get enabled():Boolean { return _enabled; }
@@ -40,7 +41,7 @@ package pixeldroid.task
             _label = value;
         }
 
-        public function addCallback(state:TaskState, callback:Function):void
+        public function addTaskStateCallback(state:TaskState, callback:Function):void
         {
             switch (state)
             {
@@ -62,7 +63,7 @@ package pixeldroid.task
             }
         }
 
-        public function removeCallback(state:TaskState, callback:Function):void
+        public function removeTaskStateCallback(state:TaskState, callback:Function):void
         {
             switch (state)
             {

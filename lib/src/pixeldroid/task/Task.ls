@@ -21,6 +21,9 @@ package pixeldroid.task
     - Supply a TaskFault callback for TaskState.FAULT
     - Supply a TaskComplete callback for TaskState.COMPLETED
 
+    @see #addTaskStateCallback
+    @see #removeTaskStateCallback
+
     Note that subclasses decide whether and how granularly to report progress.
     */
     public interface Task
@@ -36,8 +39,11 @@ package pixeldroid.task
         function get label():String;
         function set label(value:String):void;
 
-        function addCallback(state:TaskState, callback:Function):void
-        function removeCallback(state:TaskState, callback:Function):void
+        /** Connect a callback to a state change delegate */
+        function addTaskStateCallback(state:TaskState, callback:Function):void
+
+        /** Disconnect a callback from a state change delegate */
+        function removeTaskStateCallback(state:TaskState, callback:Function):void
 
         /** Trigger the task to begin processing */
         function start():void;
