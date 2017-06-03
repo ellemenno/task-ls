@@ -5,6 +5,9 @@ package
 
     import pixeldroid.bdd.SpecExecutor;
 
+    import MultiTaskSpec;
+    import ParallelTaskSpec;
+    import SequentialTaskSpec;
     import SingleTaskSpec;
     import TaskLibSpec;
 
@@ -17,7 +20,10 @@ package
 
             var returnCode:Number = SpecExecutor.exec([
                 TaskLibSpec,
-                SingleTaskSpec
+                SingleTaskSpec,
+                MultiTaskSpec,
+                SequentialTaskSpec,
+                ParallelTaskSpec
             ]);
 
             Process.exit(returnCode);
