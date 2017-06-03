@@ -6,18 +6,22 @@ package
     import pixeldroid.task.SingleTask;
     import pixeldroid.task.Task;
     import pixeldroid.task.TaskState;
-    import pixeldroid.task.TaskVersion;
+
+    import TestTask;
 
 
-    public static class TaskSpec
+    public static class SingleTaskSpec
     {
-        private static const it:Thing = Spec.describe('Task');
+        private static const it:Thing;
 
-        public static function describe():void
+        public static function specify(specifier:Spec):void
         {
-            it.should('be versioned', be_versioned);
+            it = specifier.describe('SingleTask');
+
             it.should('be enabled by default', initialize_enabled);
             it.should('not start if disabled', not_start_if_disabled);
+            it.should('start only once', start_once);
+            it.should('ignore disabling when already running', ignore_late_disable);
             it.should('provide a default label', have_default_label);
             it.should('provide a toString method', have_toString);
             it.should('announce when started', announce_start);
@@ -27,15 +31,42 @@ package
         }
 
 
-        private static function be_versioned():void
-        {
-            it.expects(TaskVersion.version).toPatternMatch('(%d+).(%d+).(%d+)', 3);
-        }
-
         private static function initialize_enabled():void
         {
             var task:Task = new TestTask();
             it.expects(task.enabled).toBeTruthy();
+            it.expects(task.currentState).toEqual(TaskState.UNSTARTED);
+        }
+
+        private static function not_start_if_disabled():void
+        {
+            var task:Task = new TestTask();
+            task.enabled = false;
+            task.start();
+            it.expects(task.currentState).toEqual(TaskState.UNSTARTED);
+        }
+
+        private static function start_once():void
+        {
+            var alerts:Number = 0;
+            var task:Task = new TestTask();
+            var callback:Function = function(task:Task) { alerts++; };
+
+            task.addTaskStateCallback(TaskState.RUNNING, callback);
+
+            task.start();
+            task.start(); // should be idempotent
+
+            it.expects(task.currentState).toEqual(TaskState.RUNNING);
+            it.expects(alerts).toEqual(1);
+        }
+
+        private static function ignore_late_disable():void
+        {
+            var task:Task = new TestTask();
+            task.start();
+            task.enabled = false;
+            it.expects(task.currentState).toEqual(TaskState.RUNNING);
         }
 
         private static function have_default_label():void
@@ -56,25 +87,16 @@ package
             it.expects(task.toString()).toEqual('test (unstarted)');
         }
 
-        private static function not_start_if_disabled():void
-        {
-            var task:Task = new TestTask();
-            task.enabled = false;
-            task.start();
-            it.expects(task.currentState).toEqual(TaskState.UNSTARTED);
-        }
-
         private static function announce_start():void
         {
             var alerts:Number = 0;
             var task:Task = new TestTask();
             var callback:Function = function(task:Task) { alerts++; };
 
-            task.addCallback(TaskState.RUNNING, callback);
-            it.expects(task.currentState).toEqual(TaskState.UNSTARTED);
+            task.addTaskStateCallback(TaskState.RUNNING, callback);
 
+            it.expects(task.currentState).toEqual(TaskState.UNSTARTED);
             task.start();
-            task.start(); // should be idempotent
 
             it.expects(task.currentState).toEqual(TaskState.RUNNING);
             it.expects(alerts).toEqual(1);
@@ -86,7 +108,7 @@ package
             var task:TestTask = new TestTask();
             var callback:Function = function(task:Task) { alerts++; };
 
-            task.addCallback(TaskState.COMPLETED, callback);
+            task.addTaskStateCallback(TaskState.COMPLETED, callback);
             task.start();
             task.do_complete();
 
@@ -101,7 +123,7 @@ package
             var task:TestTask = new TestTask();
             var callback:Function = function(task:Task, msg:String) { alerted = true; message = msg; };
 
-            task.addCallback(TaskState.FAULT, callback);
+            task.addTaskStateCallback(TaskState.FAULT, callback);
             task.do_fault('fault tolerant'); // should have no effect prior to start
             it.expects(task.currentState).toEqual(TaskState.UNSTARTED);
             it.expects(alerted).toBeFalsey();
@@ -122,7 +144,7 @@ package
             var task:TestTask = new TestTask();
             var callback:Function = function(task:Task, p:Number) { alerted = true; percent = p; };
 
-            task.addCallback(TaskState.REPORTING, callback);
+            task.addTaskStateCallback(TaskState.REPORTING, callback);
             task.start();
             task.do_progress(.57);
 
@@ -132,11 +154,4 @@ package
         }
     }
 
-    public class TestTask extends SingleTask
-    {
-        override protected function performTask():void { /* no-op */ }
-        public function do_complete():void { complete(); }
-        public function do_fault(message:String):void { fault(message); }
-        public function do_progress(percent:Number):void { progress(percent); }
-    }
 }

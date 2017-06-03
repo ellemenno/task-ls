@@ -5,7 +5,8 @@ package
 
     import pixeldroid.bdd.SpecExecutor;
 
-    import TaskSpec;
+    import SingleTaskSpec;
+    import TaskLibSpec;
 
 
     public class TaskTest extends ConsoleApplication
@@ -15,7 +16,8 @@ package
             SpecExecutor.parseArgs();
 
             var returnCode:Number = SpecExecutor.exec([
-                TaskSpec
+                TaskLibSpec,
+                SingleTaskSpec
             ]);
 
             Process.exit(returnCode);
