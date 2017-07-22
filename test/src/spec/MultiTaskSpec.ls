@@ -54,7 +54,7 @@ package
             m1.addTask(t3);
 
             var renderedTree:Vector.<String> = [
-                'MultiTask 1',
+                'MultiTask 1 (total tasks = 8)',
                 '├─SingleTask 1',
                 '├─MultiTask 2',
                 '│ ├─SingleTask 1',
@@ -65,10 +65,9 @@ package
                 '│   └─SingleTask 3',
                 '├─SingleTask 2',
                 '└─SingleTask 3',
-                ''
             ];
 
-            it.expects(m1.taskTree).toEqual(renderedTree.join('\n'));
+            it.expects(m1.taskTree.join('\n')).toEqual(renderedTree.join('\n'));
         }
 
         private static function add_tasks():void

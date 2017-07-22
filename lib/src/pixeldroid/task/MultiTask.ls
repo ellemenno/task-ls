@@ -59,33 +59,39 @@ package pixeldroid.task
         private static const space:String = ' ';
         private static const tee:String   = '├';
 
-        private static function renderTaskTree(group:TaskGroup, indent:String = ''):String
+        private static function renderTaskTree(lines:Vector.<String>, group:TaskGroup, indent:String = ''):void
         {
-            var tree:String = (indent == '') ? group.label +'\n' : '';
             var lastTask:Task = group.tasks[group.tasks.length - 1];
             var branchChar:String;
             var indentChar:String;
 
+            if (indent == '')
+                lines.push(group.label +' (total tasks = ' +countTasks(group, true) +')');
+
             for each (var task:Task in group.tasks)
             {
                 branchChar = (task == lastTask) ? elbow : tee;
-                tree += indent +branchChar +bar +task.label +'\n';
+                lines.push(indent +branchChar +bar +task.label);
 
                 if (task is TaskGroup)
                 {
                     indentChar = (task == lastTask) ? space : pipe;
-                    tree += renderTaskTree(TaskGroup(task), (indent +indentChar +space));
+                    renderTaskTree(lines, TaskGroup(task), (indent +indentChar +space));
                 }
             }
-
-            return tree;
         }
 
 
         public function set tasks(value:Vector.<Task>):void { _tasks = value; }
         public function get tasks():Vector.<Task> { return _tasks; }
 
-        public function get taskTree():String { return MultiTask.renderTaskTree(this); }
+        public function get taskTree():Vector.<String>
+        {
+            var lines:Vector.<String> = [];
+            MultiTask.renderTaskTree(lines, this);
+
+            return lines;
+        }
 
         public function get numTasks():Number { return MultiTask.countTasks(this); }
         public function get totalTasks():Number { return MultiTask.countTasks(this, true); }
