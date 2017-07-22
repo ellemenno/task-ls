@@ -29,6 +29,9 @@ package pixeldroid.task
         function get tasks():Vector.<Task>;
         function set tasks(value:Vector.<Task>):void;
 
+        /** Retrieve an ASCII representation of the task tree. */
+        function get taskTree():String;
+
         /**
         Count the number of sibling tasks in the task group.
 

@@ -53,9 +53,39 @@ package pixeldroid.task
             return count;
         }
 
+        private static const bar:String   = '─';
+        private static const elbow:String = '└';
+        private static const pipe:String  = '│';
+        private static const space:String = ' ';
+        private static const tee:String   = '├';
+
+        private static function renderTaskTree(group:TaskGroup, indent:String = ''):String
+        {
+            var tree:String = (indent == '') ? group.label +'\n' : '';
+            var lastTask:Task = group.tasks[group.tasks.length - 1];
+            var branchChar:String;
+            var indentChar:String;
+
+            for each (var task:Task in group.tasks)
+            {
+                branchChar = (task == lastTask) ? elbow : tee;
+                tree += indent +branchChar +bar +task.label +'\n';
+
+                if (task is TaskGroup)
+                {
+                    indentChar = (task == lastTask) ? space : pipe;
+                    tree += renderTaskTree(TaskGroup(task), (indent +indentChar +space));
+                }
+            }
+
+            return tree;
+        }
+
 
         public function set tasks(value:Vector.<Task>):void { _tasks = value; }
         public function get tasks():Vector.<Task> { return _tasks; }
+
+        public function get taskTree():String { return MultiTask.renderTaskTree(this); }
 
         public function get numTasks():Number { return MultiTask.countTasks(this); }
         public function get totalTasks():Number { return MultiTask.countTasks(this, true); }

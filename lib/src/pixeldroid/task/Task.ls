@@ -24,7 +24,7 @@ package pixeldroid.task
     @see #addTaskStateCallback
     @see #removeTaskStateCallback
 
-    Note that subclasses decide whether and how granularly to report progress.
+    Note that concrete implementations decide whether and how granularly to report progress.
     */
     public interface Task
     {

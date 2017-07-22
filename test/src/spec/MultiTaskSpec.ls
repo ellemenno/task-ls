@@ -12,12 +12,13 @@ package
 
     public static class MultiTaskSpec
     {
-        private static const it:Thing;
+        private static var it:Thing;
 
         public static function specify(specifier:Spec):void
         {
             it = specifier.describe('MutliTask');
 
+            it.should('render a view of the task tree', render_tree);
             it.should('add tasks to the group', add_tasks);
             it.should('not allow the same task to be added more than once', add_tasks_idempotently);
             it.should('remove tasks from the group', remove_tasks);
@@ -30,6 +31,45 @@ package
             it.should('disconnect callbacks from state change delegates', disconnect_callbacks);
         }
 
+        private static function render_tree():void
+        {
+            var m1:MultiTask = new MultiTask(); m1.label = 'MultiTask 1';
+            var m2:MultiTask = new MultiTask(); m2.label = 'MultiTask 2';
+            var m3:MultiTask = new MultiTask(); m3.label = 'MultiTask 3';
+            var t1:TestTask = new TestTask();   t1.label = 'SingleTask 1';
+            var t2:TestTask = new TestTask();   t2.label = 'SingleTask 2';
+            var t3:TestTask = new TestTask();   t3.label = 'SingleTask 3';
+
+            m3.addTask(t1);
+            m3.addTask(t2);
+            m3.addTask(t3);
+
+            m2.addTask(t1);
+            m2.addTask(t2);
+            m2.addTask(m3);
+
+            m1.addTask(t1);
+            m1.addTask(m2);
+            m1.addTask(t2);
+            m1.addTask(t3);
+
+            var renderedTree:Vector.<String> = [
+                'MultiTask 1',
+                '├─SingleTask 1',
+                '├─MultiTask 2',
+                '│ ├─SingleTask 1',
+                '│ ├─SingleTask 2',
+                '│ └─MultiTask 3',
+                '│   ├─SingleTask 1',
+                '│   ├─SingleTask 2',
+                '│   └─SingleTask 3',
+                '├─SingleTask 2',
+                '└─SingleTask 3',
+                ''
+            ];
+
+            it.expects(m1.taskTree).toEqual(renderedTree.join('\n'));
+        }
 
         private static function add_tasks():void
         {
