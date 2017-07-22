@@ -29,7 +29,7 @@ package pixeldroid.task
             {
                 if ((task is TaskGroup) && descend)
                 {
-                    count += countTasks(task as TaskGroup);
+                    count += countTasks(task as TaskGroup, descend);
                 }
                 else
                 {

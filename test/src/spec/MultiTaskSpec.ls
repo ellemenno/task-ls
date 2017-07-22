@@ -134,16 +134,22 @@ package
         {
             var m1:MultiTask = new MultiTask();
             var m2:MultiTask = new MultiTask();
+            var m3:MultiTask = new MultiTask();
             var t1:TestTask = new TestTask();
             var t2:TestTask = new TestTask();
 
+            m3.addTask(t1);
+            m3.addTask(t2);
+
+            m2.addTask(m3);
             m2.addTask(t1);
             m2.addTask(t2);
 
             m1.addTask(t1);
             m1.addTask(m2);
+            m1.addTask(t2);
 
-            it.expects(m1.totalTasks).toEqual(3);
+            it.expects(m1.totalTasks).toEqual(6);
         }
 
         private static function count_processed_top_tasks():void
