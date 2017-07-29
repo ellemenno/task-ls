@@ -49,12 +49,12 @@ package
 
         private static function announce_progress():void
         {
-            var progress:Number = 0;
-            var callback:Function = function(task:Task, percent:Number) { progress = percent; };
+            var progress:Vector.<Number> = [];
+            var callback:Function = function(task:Task, percent:Number) { progress.push(percent); };
 
-            var a:TestTask = new TestTask();
-            var b:TestTask = new TestTask();
-            var c:TestTask = new TestTask();
+            var a:Task = TestTask.completingTask;
+            var b:Task = TestTask.completingTask;
+            var c:Task = TestTask.completingTask;
 
             var testParallel:ParallelTask = new ParallelTask();
             testParallel.addTaskStateCallback(TaskState.REPORTING, callback);
@@ -64,23 +64,18 @@ package
             testParallel.addTask(c);
 
             testParallel.start();
-            it.expects(progress).toEqual(0/3);
 
-            a.do_complete();
-            it.expects(progress).toEqual(1/3);
-
-            b.do_complete();
-            it.expects(progress).toEqual(2/3);
-
-            c.do_complete();
-            it.expects(progress).toEqual(3/3);
+            it.asserts(progress.length).isEqualTo(3);
+            it.expects(progress[0]).toEqual(1/3);
+            it.expects(progress[1]).toEqual(2/3);
+            it.expects(progress[2]).toEqual(3/3);
         }
 
         private static function finish_with_all():void
         {
-            var a:TestTask = new TestTask();
-            var b:TestTask = new TestTask();
-            var c:TestTask = new TestTask();
+            var a:Task = TestTask.completingTask;
+            var b:Task = TestTask.completingTask;
+            var c:Task = TestTask.completingTask;
 
             var testParallel:ParallelTask = new ParallelTask();
             testParallel.addTask(a);
@@ -88,19 +83,18 @@ package
             testParallel.addTask(c);
 
             testParallel.start();
-            it.expects(testParallel.currentState).toEqual(TaskState.RUNNING);
 
-            a.do_complete();
-            b.do_complete();
-            c.do_complete();
             it.expects(testParallel.currentState).toEqual(TaskState.COMPLETED);
+            it.expects(a.currentState).toEqual(TaskState.COMPLETED);
+            it.expects(b.currentState).toEqual(TaskState.COMPLETED);
+            it.expects(c.currentState).toEqual(TaskState.COMPLETED);
         }
 
         private static function fault_on_subfault():void
         {
-            var a:TestTask = new TestTask();
-            var b:TestTask = new TestTask();
-            var c:TestTask = new TestTask();
+            var a:Task = TestTask.completingTask;
+            var b:Task = TestTask.faultingTask;
+            var c:Task = TestTask.completingTask;
 
             var testParallel:ParallelTask = new ParallelTask();
             testParallel.addTask(a);
@@ -108,10 +102,10 @@ package
             testParallel.addTask(c);
 
             testParallel.start();
-            it.expects(testParallel.currentState).toEqual(TaskState.RUNNING);
-
-            c.do_fault('fail fast!');
             it.expects(testParallel.currentState).toEqual(TaskState.FAULT);
+            it.expects(a.currentState).toEqual(TaskState.COMPLETED);
+            it.expects(b.currentState).toEqual(TaskState.FAULT);
+            it.expects(c.currentState).toEqual(TaskState.UNSTARTED);
         }
     }
 }

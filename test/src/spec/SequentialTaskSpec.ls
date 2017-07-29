@@ -18,43 +18,47 @@ package
         {
             it = specifier.describe('SequentialTask');
 
-            it.should('start first sub-task when started', start_with_first);
+            it.should('complete the sub-tasks in the order added', complete_in_order);
             it.should('announce progress updates when sub-tasks complete', announce_progress);
             it.should('complete when last sub-task completes', finish_with_last);
             it.should('fault at the first sub-task fault', fault_fast);
         }
 
 
-        private static function start_with_first():void
+        private static function complete_in_order():void
         {
-            var a:TestTask = new TestTask();
-            var b:TestTask = new TestTask();
-            var c:TestTask = new TestTask();
+            var completedTasks:Vector.<Number> = [];
+            var callback:Function = function(task:Task) { completedTasks.push(task); };
+
+            var a:Task = TestTask.completingTask;
+            var b:Task = TestTask.completingTask;
+            var c:Task = TestTask.completingTask;
 
             var testSequence:SequentialTask = new SequentialTask();
+            testSequence.addSubTaskStateCallback(TaskState.COMPLETED, callback);
+
             testSequence.addTask(a);
             testSequence.addTask(b);
             testSequence.addTask(c);
 
-            it.expects(a.currentState).toEqual(TaskState.UNSTARTED);
-            it.expects(b.currentState).toEqual(TaskState.UNSTARTED);
-            it.expects(c.currentState).toEqual(TaskState.UNSTARTED);
-
             testSequence.start();
 
-            it.expects(a.currentState).toEqual(TaskState.RUNNING);
-            it.expects(b.currentState).toEqual(TaskState.UNSTARTED);
-            it.expects(c.currentState).toEqual(TaskState.UNSTARTED);
+            it.expects(testSequence.currentState).toEqual(TaskState.COMPLETED);
+
+            it.asserts(completedTasks.length).isEqualTo(testSequence.numTasks).or('number of completed tasks (' +completedTasks.length +') did not match number of added tasks (' +testSequence.numTasks +')');
+            it.expects(completedTasks[0]).toEqual(a);
+            it.expects(completedTasks[1]).toEqual(b);
+            it.expects(completedTasks[2]).toEqual(c);
         }
 
         private static function announce_progress():void
         {
-            var progress:Number = 0;
-            var callback:Function = function(task:Task, percent:Number) { progress = percent; };
+            var progressUpdates:Vector.<Number> = [];
+            var callback:Function = function(task:Task, percent:Number) { progressUpdates.push(percent); };
 
-            var a:TestTask = new TestTask();
-            var b:TestTask = new TestTask();
-            var c:TestTask = new TestTask();
+            var a:Task = TestTask.completingTask;
+            var b:Task = TestTask.completingTask;
+            var c:Task = TestTask.completingTask;
 
             var testSequence:SequentialTask = new SequentialTask();
             testSequence.addTaskStateCallback(TaskState.REPORTING, callback);
@@ -64,23 +68,18 @@ package
             testSequence.addTask(c);
 
             testSequence.start();
-            it.expects(progress).toEqual(0/3);
 
-            a.do_complete();
-            it.expects(progress).toEqual(1/3);
-
-            b.do_complete();
-            it.expects(progress).toEqual(2/3);
-
-            c.do_complete();
-            it.expects(progress).toEqual(3/3);
+            var numUpdates:Number = progressUpdates.length;
+            it.expects(numUpdates).toEqual(testSequence.numTasks);
+            it.expects(progressUpdates[0]).toEqual(1 / numUpdates);
+            it.expects(progressUpdates[numUpdates - 1]).toEqual(1);
         }
 
         private static function finish_with_last():void
         {
-            var a:TestTask = new TestTask();
-            var b:TestTask = new TestTask();
-            var c:TestTask = new TestTask();
+            var a:Task = TestTask.completingTask;
+            var b:Task = TestTask.completingTask;
+            var c:Task = TestTask.completingTask;
 
             var testSequence:SequentialTask = new SequentialTask();
             testSequence.addTask(a);
@@ -88,19 +87,18 @@ package
             testSequence.addTask(c);
 
             testSequence.start();
-            it.expects(testSequence.currentState).toEqual(TaskState.RUNNING);
 
-            a.do_complete();
-            b.do_complete();
-            c.do_complete();
             it.expects(testSequence.currentState).toEqual(TaskState.COMPLETED);
+            it.expects(a.currentState).toEqual(TaskState.COMPLETED);
+            it.expects(b.currentState).toEqual(TaskState.COMPLETED);
+            it.expects(c.currentState).toEqual(TaskState.COMPLETED);
         }
 
         private static function fault_fast():void
         {
-            var a:TestTask = new TestTask();
-            var b:TestTask = new TestTask();
-            var c:TestTask = new TestTask();
+            var a:Task = TestTask.faultingTask;
+            var b:Task = TestTask.completingTask;
+            var c:Task = TestTask.completingTask;
 
             var testSequence:SequentialTask = new SequentialTask();
             testSequence.addTask(a);
@@ -108,10 +106,11 @@ package
             testSequence.addTask(c);
 
             testSequence.start();
-            it.expects(testSequence.currentState).toEqual(TaskState.RUNNING);
 
-            a.do_fault('fail fast!');
             it.expects(testSequence.currentState).toEqual(TaskState.FAULT);
+            it.expects(a.currentState).toEqual(TaskState.FAULT);
+            it.expects(b.currentState).toEqual(TaskState.UNSTARTED);
+            it.expects(c.currentState).toEqual(TaskState.UNSTARTED);
         }
     }
 

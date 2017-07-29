@@ -156,7 +156,17 @@ package pixeldroid.task
         }
 
 
-        protected function startSubTask(task:Task):Boolean
+        override protected function clearCallbacks():void
+        {
+            super.clearCallbacks();
+
+            _onSubTaskStart = null;
+            _onSubTaskProgress = null;
+            _onSubTaskFault = null;
+            _onSubTaskComplete = null;
+        }
+
+        protected function canStartSubTask(task:Task):Boolean
         {
             if (task == null)
             {
@@ -164,22 +174,15 @@ package pixeldroid.task
                 return false;
             }
 
-            var started:Boolean = false;
+            var canStart:Boolean = false;
 
             if (task.enabled)
             {
                 connectCallbacks(task);
-                task.start();
-                started = true;
-            }
-            else
-            {
-                // disabled tasks count as already completed
-                processAndAnnounceProgress();
-                started = false;
+                canStart = true;
             }
 
-            return started;
+            return canStart;
         }
 
         protected function connectCallbacks(task:Task):void
@@ -221,8 +224,7 @@ package pixeldroid.task
             disconnectCallbacks(task);
         }
 
-
-        private function processAndAnnounceProgress():void
+        protected function processAndAnnounceProgress():void
         {
             _numProcessed++;
             progress(_numProcessed / numTasks);

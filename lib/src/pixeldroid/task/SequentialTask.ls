@@ -1,7 +1,5 @@
 package pixeldroid.task
 {
-    import system.Debug;
-
     import pixeldroid.task.MultiTask;
     import pixeldroid.task.Task;
     import pixeldroid.task.TaskState;
@@ -9,49 +7,35 @@ package pixeldroid.task
 
     public class SequentialTask extends MultiTask
     {
-        private var currentTask:Number = 0;
-
-
         override protected function performTask():void
         {
-            startNextTask();
+            for each (var task:Task in tasks)
+            {
+                if (canStartSubTask(task))
+                    task.start();
+                else
+                    processAndAnnounceProgress(); // disabled tasks still count as processed tasks
+
+                if (currentState == TaskState.FAULT)
+                    return;
+            }
+
+            fault('task sequence was unable to be performed');
         }
 
         override protected function onSubTaskComplete(task:Task):void
         {
             super.onSubTaskComplete(task);
-            startNextTask();
+
+            if (numProcessed == numTasks)
+                complete();
         }
 
         override protected function onSubTaskFault(task:Task, message:String):void
         {
             super.onSubTaskFault(task, message);
+
             fault(message);
-        }
-
-
-        private function startNextTask():void
-        {
-            if (!hasMoreTasks)
-                complete();
-
-            else if (!startSubTask(nextTask))
-                startNextTask();
-        }
-
-        private function get hasMoreTasks():Boolean
-        {
-            return tasks && (currentTask < tasks.length);
-        }
-
-        private function get nextTask():Task
-        {
-            var task:Task;
-
-            if (hasMoreTasks)
-                task = tasks[currentTask++] as Task;
-
-            return task;
         }
     }
 }

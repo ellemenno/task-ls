@@ -116,6 +116,7 @@ package pixeldroid.task
 
             setCurrentState(TaskState.COMPLETED);
             _onTaskComplete(this);
+            clearCallbacks();
         }
 
         protected function fault(message:String = null):void
@@ -125,6 +126,7 @@ package pixeldroid.task
 
             setCurrentState(TaskState.FAULT);
             _onTaskFault(this, message);
+            clearCallbacks();
         }
 
         protected function progress(percent:Number):void
@@ -133,6 +135,14 @@ package pixeldroid.task
                 return;
 
             _onTaskProgress(this, percent);
+        }
+
+        protected function clearCallbacks():void
+        {
+            _onTaskStart = null;
+            _onTaskProgress = null;
+            _onTaskFault = null;
+            _onTaskComplete = null;
         }
 
 

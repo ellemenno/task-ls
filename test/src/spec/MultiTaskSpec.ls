@@ -25,8 +25,8 @@ package
             it.should('provide access to the tasks in the group', access_tasks);
             it.should('count the number of top-level tasks in the group', count_top_tasks);
             it.should('count all the nested tasks in the group', count_nested_tasks);
-            it.should('know how many top-level tasks have been processed', count_processed_top_tasks);
-            it.should('know how many nested tasks have been processed', count_processed_nested_tasks);
+            it.should('know how many top-level tasks are processed', count_processed_top_tasks);
+            it.should('know how many nested tasks are processed', count_processed_nested_tasks);
             it.should('connect callbacks to state change delegates', connect_callbacks);
             it.should('disconnect callbacks from state change delegates', disconnect_callbacks);
         }
@@ -239,7 +239,11 @@ package
     public class TestMultiTask extends MultiTask
     {
         override protected function performTask():void { /* no-op */ }
-        public function do_subTask(task:Task):Boolean { return startSubTask(task); }
+        public function do_subTask(task:Task):void
+        {
+            if (canStartSubTask(task))
+                task.start();
+        }
     }
 
 }
