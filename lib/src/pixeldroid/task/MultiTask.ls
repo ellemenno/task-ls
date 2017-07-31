@@ -23,17 +23,14 @@ package pixeldroid.task
 
         private static function countTasks(group:TaskGroup, descend:Boolean = false):Number
         {
-            var count:Number = 0;
+            var count:Number = group.tasks.length;
 
-            for each (var task:Task in group.tasks)
+            if (descend)
             {
-                if ((task is TaskGroup) && descend)
+                for each (var task:Task in group.tasks)
                 {
-                    count += countTasks(task as TaskGroup, descend);
-                }
-                else
-                {
-                    count += 1;
+                    if (task is TaskGroup)
+                        count += countTasks(task as TaskGroup, descend) - 1; // don't count task group as task
                 }
             }
 
@@ -44,10 +41,13 @@ package pixeldroid.task
         {
             var count:Number = group.numProcessed;
 
-            for each (var task:Task in group.tasks)
+            if (descend)
             {
-                if (task is TaskGroup)
-                    count += TaskGroup(task).numProcessed;
+                for each (var task:Task in group.tasks)
+                {
+                    if (task is TaskGroup)
+                        count += TaskGroup(task).numProcessed;
+                }
             }
 
             return count;
