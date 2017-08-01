@@ -14,14 +14,14 @@ package pixeldroid.task
             {
                 if (canStartSubTask(task))
                     task.start();
-
-                processAndAnnounceProgress();
+                else
+                    processAndAnnounceProgress(); // disabled tasks still count as processed tasks
 
                 if (currentState == TaskState.FAULT)
                     return;
             }
 
-            complete();
+            fault('task sequence was unable to be performed');
         }
 
         override protected function onSubTaskComplete(task:Task):void
