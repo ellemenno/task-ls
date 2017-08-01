@@ -158,12 +158,14 @@ package pixeldroid.task
 
         override protected function clearCallbacks():void
         {
-            super.clearCallbacks();
-
             _onSubTaskStart = null;
             _onSubTaskProgress = null;
             _onSubTaskFault = null;
             _onSubTaskComplete = null;
+
+            super.clearCallbacks();
+
+            _tasks.clear();
         }
 
         protected function canStartSubTask(task:Task):Boolean

@@ -41,11 +41,12 @@ package
             testSequence.addTask(b);
             testSequence.addTask(c);
 
+            var numTasks:Number = testSequence.numTasks;
             testSequence.start();
 
             it.expects(testSequence.currentState).toEqual(TaskState.COMPLETED);
 
-            it.asserts(completedTasks.length).isEqualTo(testSequence.numTasks).or('number of completed tasks (' +completedTasks.length +') did not match number of added tasks (' +testSequence.numTasks +')');
+            it.asserts(completedTasks.length).isEqualTo(numTasks).or('number of completed tasks (' +completedTasks.length +') did not match number of added tasks (' +testSequence.numTasks +')');
             it.expects(completedTasks[0]).toEqual(a);
             it.expects(completedTasks[1]).toEqual(b);
             it.expects(completedTasks[2]).toEqual(c);
@@ -67,10 +68,11 @@ package
             testSequence.addTask(b);
             testSequence.addTask(c);
 
+            var numTasks:Number = testSequence.numTasks;
             testSequence.start();
 
             var numUpdates:Number = progressUpdates.length;
-            it.expects(numUpdates).toEqual(testSequence.numTasks);
+            it.expects(numUpdates).toEqual(numTasks);
             it.expects(progressUpdates[0]).toEqual(1 / numUpdates);
             it.expects(progressUpdates[numUpdates - 1]).toEqual(1);
         }
