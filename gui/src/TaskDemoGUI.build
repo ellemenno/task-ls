@@ -1,0 +1,20 @@
+{
+  "name": "TaskDemoGUI",
+  "version": "1.0",
+  "outputDir": "bin",
+  "references": [
+    "System",
+    "Loom",
+    "Task"
+  ],
+  "modules": [
+    {
+      "name": "TaskDemoGUI",
+      "version": "1.0",
+      "sourcePath": [
+        "."
+      ]
+    }
+  ],
+  "executable": true
+}

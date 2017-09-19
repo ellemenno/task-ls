@@ -1,0 +1,19 @@
+{
+  "name": "TaskDemoCLI",
+  "version": "1.0",
+  "outputDir": "bin",
+  "references": [
+    "System",
+    "Task"
+  ],
+  "modules": [
+    {
+      "name": "TaskDemoCLI",
+      "version": "1.0",
+      "sourcePath": [
+        "."
+      ]
+    }
+  ],
+  "executable": true
+}
